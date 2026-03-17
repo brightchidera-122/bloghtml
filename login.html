@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Login and Signup</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          Segoe UI,
+          sans-serif;
+      }
+
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      }
+
+      .container {
+        display: flex;
+        gap: 30px;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 900px;
+        width: 100%;
+      }
+
+      .my-form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .my-form h2 {
+        margin-bottom: 20px;
+        color: #0f172a;
+      }
+
+      .my-form label {
+        margin-top: 10px;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #334155;
+      }
+
+      .my-form input {
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 15px;
+        outline: none;
+        transition: 0.3s;
+      }
+
+      .my-form input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+      }
+
+      .password-toggle {
+        display: flex;
+      }
+
+      .password-toggle input {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      .password-toggle button {
+        padding: 12px;
+        border: none;
+        background: #e2e8f0;
+        cursor: pointer;
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+      }
+
+      .my-form button[type="submit"] {
+        margin-top: 20px;
+        padding: 12px;
+        background: yellowgreen;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <form class="my-form" id="signinForm">
+        <h2>Sign In</h2>
+
+        <label>Email</label>
+        <input type="email" id="signin-email" required />
+
+        <label>Password</label>
+
+        <div class="password-toggle">
+          <input type="password" id="signin-password" required />
+          <button type="button">👁</button>
+        </div>
+
+        <button type="submit">Sign In</button>
+      </form>
+
+      <form class="my-form" id="signupForm">
+        <h2>Create Account</h2>
+
+        <label>First Name</label>
+        <input type="text" id="firstname" required />
+
+        <label>Last Name</label>
+        <input type="text" id="lastName" required />
+
+        <label>Email</label>
+        <input type="email" id="signup-email" required />
+
+        <label>Password</label>
+
+        <div class="password-toggle">
+          <input type="password" id="signup-password" required />
+          <button type="button">👁</button>
+        </div>
+
+        <label>Confirm Password</label>
+
+        <div class="password-toggle">
+          <input type="password" id="signup-confirm-password" required />
+          <button type="button">👁</button>
+        </div>
+
+        <button type="submit">Create Account</button>
+      </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <script src="login.js"></script>
+  </body>
+</html>
