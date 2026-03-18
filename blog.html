@@ -4,17 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-
     <title>Landmark Blog</title>
   </head>
   <body>
     <header>
-      <div class="logo">🌍 Landmark Blog</div>
+      <div class="logo">Landmark Blog</div>
 
       <div class="my-buttons">
-        <button class="login-btn">Login</button>
+        <!-- login-btn now handled by blog.js click listener -->
 
-        <button class="logout-btn" onclick="handleLogout()">SignOut</button>
+        <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
       </div>
     </header>
 
@@ -27,20 +26,17 @@
     </nav>
 
     <div class="hero">Explore Famous Landmarks</div>
+
     <div class="Mysidebar">
       <h3>About Blog</h3>
-
       <p>This blog shares famous landmarks around the world.</p>
-
       <br />
-
       <h3>Popular Landmarks</h3>
-
       <ul>
+        <li>Eiffel Tower</li>
         <li>Statue of Liberty</li>
-        <li>Statue of Liberty</li>
-        <li>Statue of Liberty</li>
-        <li>Statue of Liberty</li>
+        <li>Great Wall of China</li>
+        <li>Colosseum</li>
       </ul>
     </div>
 
@@ -49,8 +45,8 @@
     </div>
 
     <footer>© 2026 Landmark Blog | Designed by Bright Chidera</footer>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="blog.js"></script>
   </body>
 </html>

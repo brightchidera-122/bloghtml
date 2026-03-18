@@ -5,21 +5,18 @@ const SUPABASE_ANON_KEY =
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
-// AUTH GUARD — runs first before anything else loads
-// Checks: (1) logged in, (2) is admin via profiles table
+// AUTH GUARD
 // ============================================================
 async function checkAdminAccess() {
   const {
     data: { user },
   } = await client.auth.getUser();
 
-  // Not logged in → send to login
   if (!user) {
     window.location.href = "login.html";
     return false;
   }
 
-  // Check admin status in profiles table
   const { data: profile, error } = await client
     .from("profiles")
     .select("is_admin")
@@ -32,7 +29,6 @@ async function checkAdminAccess() {
     return false;
   }
 
-  // ✅ Show admin's email in the sidebar
   const emailEl = document.getElementById("adminEmail");
   const initialEl = document.getElementById("adminInitial");
   if (emailEl) emailEl.textContent = user.email;
@@ -42,13 +38,10 @@ async function checkAdminAccess() {
 }
 
 // ============================================================
-// SIGN OUT — signs out of Supabase entirely.
-// Because blog.js uses the same Supabase project + credentials,
-// signing out here also invalidates the session on the blog page.
+// LOGOUT
 // ============================================================
 async function handleLogout() {
   const { error } = await client.auth.signOut();
-
   if (error) {
     alert("Logout failed: " + error.message);
   } else {
@@ -57,7 +50,7 @@ async function handleLogout() {
 }
 
 // ============================================================
-// LOAD STATS — post count for the dashboard cards
+// LOAD STATS
 // ============================================================
 async function loadStats() {
   const { count: postCount } = await client
@@ -66,11 +59,9 @@ async function loadStats() {
 
   const totalEl = document.getElementById("totalPosts");
   const publishedEl = document.getElementById("publishedPosts");
-
   if (totalEl) totalEl.textContent = postCount ?? 0;
   if (publishedEl) publishedEl.textContent = postCount ?? 0;
 
-  // User count from profiles table
   const { count: userCount } = await client
     .from("profiles")
     .select("*", { count: "exact", head: true });
@@ -80,11 +71,12 @@ async function loadStats() {
 }
 
 // ============================================================
-// LOAD POSTS TABLE — shows existing posts with delete option
+// LOAD POSTS TABLE
 // ============================================================
 async function loadPostsTable() {
   const tbody = document.getElementById("postsTableBody");
-  tbody.innerHTML = `<tr class="empty-row"><td colspan="4">Loading...</td></tr>`;
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>`;
 
   const { data, error } = await client
     .from("blogpage")
@@ -92,36 +84,36 @@ async function loadPostsTable() {
     .order("id", { ascending: false });
 
   if (error) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">Error loading posts.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="color:red;padding:20px;">Error loading posts.</td></tr>`;
     return;
   }
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">No posts yet. Add your first one above!</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:#64748b;">No posts yet. Add your first one above!</td></tr>`;
     return;
   }
 
   tbody.innerHTML = "";
 
   data.forEach((post) => {
-    const title = post["landmark title"] || "Untitled";
-    const image = post["image"] || "";
-    const description = post["description"] || "";
+    const landmark_title = post["landmark_title"] || "Untitled";
+    const Image = post["Image"] || "";
+    const Description = post["Description"] || "";
     const shortDesc =
-      description.length > 80
-        ? description.substring(0, 80) + "…"
-        : description;
+      Description.length > 80
+        ? Description.substring(0, 80) + "…"
+        : Description;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>
         ${
-          image
-            ? `<img class="post-thumb" src="${image}" alt="${title}" onerror="this.style.display='none'">`
+          Image
+            ? `<img class="post-thumb" src="${Image}" alt="${landmark_title}" onerror="this.style.display='none'">`
             : "—"
         }
       </td>
-      <td>${title}</td>
+      <td>${landmark_title}</td>
       <td>${shortDesc || "—"}</td>
       <td>
         <button class="delete-btn" onclick="deletePost(${post.id})">Delete</button>
@@ -132,38 +124,43 @@ async function loadPostsTable() {
 }
 
 // ============================================================
-// ADD POST — inserts into "blogpage" table, appears on blog page
-// Column names match your existing Supabase table exactly:
-//   "landmark title", "image", "description"
+// ADD POST
+// FIX: column name must be "landmark title" to match Supabase table.
+// Also includes the "image" column.
 // ============================================================
 async function handleAddPost(event) {
   event.preventDefault();
 
-  const landmark = document.getElementById("landmarkTitle").value.trim();
-  const image = document.getElementById("landmarkImage").value.trim();
-  const description = document
+  const landmark_title = document.getElementById("landmarkTitle").value.trim();
+  const Image = document.getElementById("landmarkImage").value.trim();
+  const Description = document
     .getElementById("landmarkDescription")
     .value.trim();
 
+  if (!landmark_title || !Description) {
+    showMessage("Title and description are required.", "error");
+    return;
+  }
+
   const btn = document.getElementById("submitBtn");
   btn.disabled = true;
-  btn.textContent = "Publishing...";
+  btn.textContent = "Publishing…";
 
+  // Column name matches Supabase exactly: "landmark title"
   const { error } = await client
     .from("blogpage")
-    .insert([{ landmark, description }]);
+    .insert([{ landmark_title, Image, Description }]);
 
   btn.disabled = false;
-  btn.textContent = "✦ Publish Post";
+  btn.textContent = "Publish Post";
 
   if (error) {
     showMessage(error.message, "error");
   } else {
-    showMessage("✅ Post published! It now appears on the blog.", "success");
+    showMessage("Post published! It now appears on the blog.", "success");
     document.getElementById("landmarkTitle").value = "";
     document.getElementById("landmarkImage").value = "";
     document.getElementById("landmarkDescription").value = "";
-    // Refresh the table and stats
     await loadPostsTable();
     await loadStats();
   }
@@ -186,12 +183,13 @@ async function deletePost(id) {
 }
 
 // ============================================================
-// SHOW MESSAGE HELPER
+// SHOW MESSAGE
 // ============================================================
 function showMessage(text, type) {
   const el = document.getElementById("message");
+  if (!el) return;
   el.textContent = text;
-  el.className = type; // "success" or "error"
+  el.className = type;
   setTimeout(() => {
     el.className = "";
     el.textContent = "";
@@ -199,8 +197,7 @@ function showMessage(text, type) {
 }
 
 // ============================================================
-// LISTEN FOR AUTH CHANGES
-// If the user signs out on the blog page, this tab also redirects.
+// AUTH STATE LISTENER
 // ============================================================
 client.auth.onAuthStateChange((event) => {
   if (event === "SIGNED_OUT") {
@@ -209,12 +206,16 @@ client.auth.onAuthStateChange((event) => {
 });
 
 // ============================================================
-// INIT — guard first, then load data
+// INIT
 // ============================================================
 document.addEventListener("DOMContentLoaded", async () => {
   const allowed = await checkAdminAccess();
   if (allowed) {
     await loadStats();
     await loadPostsTable();
+
+    // Wire up the form submit
+    const form = document.getElementById("addPostForm");
+    if (form) form.addEventListener("submit", handleAddPost);
   }
 });

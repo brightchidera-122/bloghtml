@@ -4,55 +4,86 @@ const SUPABASE_ANON_KEY =
 
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ── Password toggle buttons ──────────────────────────────────────────────────
+document.querySelectorAll(".password-toggle button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const input = btn.previousElementSibling;
+    input.type = input.type === "password" ? "text" : "password";
+    btn.textContent = input.type === "password" ? "Show" : "Hide";
+  });
+});
+
+// ── Sign Up ──────────────────────────────────────────────────────────────────
 const signupForm = document.getElementById("signupForm");
 
 signupForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const email = document.getElementById("signup-email").value;
+  const email = document.getElementById("signup-email").value.trim();
   const password = document.getElementById("signup-password").value;
   const confirmPassword = document.getElementById(
     "signup-confirm-password",
   ).value;
 
   if (password !== confirmPassword) {
-    alert("Passwords do not match");
+    alert("Passwords do not match.");
     return;
   }
 
-  const { data, error } = await client.auth.signUp({
-    email: email,
-    password: password,
-  });
+  const submitBtn = signupForm.querySelector("button[type='submit']");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Creating account…";
+
+  const { data, error } = await client.auth.signUp({ email, password });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Create Account";
 
   if (error) {
-    console.log(error);
     alert(error.message);
     return;
   }
-  alert("account created successful, login now");
+
+  alert("Account created! Please check your email to confirm, then sign in.");
+  signupForm.reset();
 });
 
+// ── Sign In ──────────────────────────────────────────────────────────────────
 const signinForm = document.getElementById("signinForm");
 
 signinForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const email = document.getElementById("signin-email").value;
+  const email = document.getElementById("signin-email").value.trim();
   const password = document.getElementById("signin-password").value;
 
+  const submitBtn = signinForm.querySelector("button[type='submit']");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Signing in…";
+
   const { data, error } = await client.auth.signInWithPassword({
-    email: email,
-    password: password,
+    email,
+    password,
   });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Sign In";
 
   if (error) {
     alert(error.message);
     return;
   }
 
-  alert("Login successful!");
+  // Redirect admins to admin panel, regular users to blog
+  const { data: profile } = await client
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", data.user.id)
+    .single();
 
-  window.location.href = "blog.html";
+  if (profile && profile.is_admin) {
+    window.location.href = "admin.html";
+  } else {
+    window.location.href = "blog.html";
+  }
 });
-s;

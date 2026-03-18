@@ -48,18 +48,18 @@ async function loadBlogPosts() {
   }
 
   data.forEach((post) => {
-    const title = post["landmark title"];
-    const description = post["description"];
-    const image = post["image"];
+    const landmark_title = post["landmark_title"];
+    const Description = post["Description"];
+    const Image = post["Image"];
 
     const card = document.createElement("div");
     card.className = "card";
 
     card.innerHTML = `
-      <img src="${image}" alt="${title}">
+      <img src="${Image}" alt="${landmark_title}">
       <div class="card-content">
-        <h2>${title}</h2>
-        <p>${description}</p>
+        <h2>${landmark_title}</h2>
+        <p>${Description}</p>
       </div>
     `;
 
